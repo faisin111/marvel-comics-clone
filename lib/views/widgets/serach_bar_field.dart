@@ -6,7 +6,8 @@ import 'package:marvel_comics/view_models/providers/character_provider.dart';
 
 class SerachBarField extends ConsumerWidget {
   final TextEditingController controller;
-  const SerachBarField({super.key, required this.controller});
+  final ValueChanged<String>? onChanged;
+  const SerachBarField({super.key,required this.onChanged, required this.controller});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,13 +16,7 @@ class SerachBarField extends ConsumerWidget {
     double h(double h) => size.width * h;
     return TextField(
       controller: controller,
-      onChanged: (value) {
-        if (value.isEmpty) {
-          ref.read(characterProvider.notifier).getAllchar();
-        } else {
-          ref.read(characterProvider.notifier).searchCharacter(value);
-        }
-      },
+      onChanged: onChanged,
       decoration: InputDecoration(
         prefixIcon: Icon(Icons.search, color: AppTheme.geyColor),
 

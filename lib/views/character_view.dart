@@ -37,7 +37,16 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
     return ListView(
       padding: EdgeInsets.all(w(0.04)),
       children: [
-        SerachBarField(controller: controller),
+        SerachBarField(
+          controller: controller,
+          onChanged: (value) {
+            if (value.isEmpty) {
+              ref.read(characterProvider.notifier).getAllchar();
+            } else {
+              ref.read(characterProvider.notifier).searchCharacter(value);
+            }
+          },
+        ),
         SizedBox(height: h(0.04)),
 
         char.loading
@@ -94,11 +103,9 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                 },
               )
             : Column(
-              children: [
-                SizedBox(
-                  height: h(0.4),
-                ),
-                Builder(
+                children: [
+                  SizedBox(height: h(0.4)),
+                  Builder(
                     builder: (context) {
                       switch (char.type?.type) {
                         case AuthException:
@@ -136,8 +143,8 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                       }
                     },
                   ),
-              ],
-            ),
+                ],
+              ),
       ],
     );
   }

@@ -1,201 +1,211 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marvel_comics/core/theme/app_theme.dart';
+import 'package:marvel_comics/view_models/providers/comic_provider.dart';
+import 'package:marvel_comics/views/widgets/rows.dart';
 
-class ComicDetailsPage extends StatelessWidget {
-  const ComicDetailsPage({super.key});
+class ComicDetailsPage extends ConsumerStatefulWidget {
+  final int id;
+  const ComicDetailsPage({super.key, required this.id});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ComicDetailsPageState();
+}
+
+class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(comicProvider.notifier).detailedCharacter(widget.id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xff0F1014),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 1,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.people_outline), label: "Characters"),
-          NavigationDestination(icon: Icon(Icons.menu_book_outlined), label: "Comics"),
-          NavigationDestination(icon: Icon(Icons.favorite_outline), label: "Favorites"),
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: const Color(0xff111216),
-            pinned: true,
-            expandedHeight: 340,
-            automaticallyImplyLeading: false,
-            title: const Row(
-              children: [
-                Icon(Icons.arrow_back,color: Colors.red,size:18),
-                SizedBox(width: 12),
-                DecoratedBox(
-                  decoration: BoxDecoration(color: Color(0xffED1D24)),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-                    child: Text("MARVEL",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Text("THE AVENGERS #1",
-                    style: TextStyle(color: Colors.grey,fontSize: 13))
-              ],
+    final size = MediaQuery.of(context).size;
+
+    double w(double value) => size.width * value;
+
+    double h(double value) => size.height * value;
+    final comic = ref.watch(comicProvider);
+    return comic.loading
+        ? Center(
+            child: CircularProgressIndicator(
+              color: AppTheme.primaryColor,
+              strokeWidth: 1.5,
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    "https://images.unsplash.com/photo-1612036782180-6f0822045d74?q=80&w=1200",
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Color(0xff0F1014)
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 110,
-                    left: 16,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black45,
-                      child: Icon(Icons.arrow_back,color: Colors.white),
-                    ),
-                  ),
-                  Positioned(
-                    top: 110,
-                    right: 16,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black45,
-                      child: Icon(Icons.favorite_border,color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          )
+        : Scaffold(
+            backgroundColor: const Color(0xff0F1014),
+
+            body: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          "THE AVENGERS #1",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
+                  SizedBox(
+                    height: h(.45),
+                    width: double.infinity,
+                    child: Stack(
+                      children: [
+                        /// Background Image
+                        ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(w(.08)),
+                            bottomRight: Radius.circular(w(.08)),
+                          ),
+                          child: comic.detailed!.image.isEmpty
+                              ? Container(
+                                  color: const Color(0xff202329),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.image_not_supported_outlined,
+                                      color: Colors.white38,
+                                      size: w(.15),
+                                    ),
+                                  ),
+                                )
+                              : Image.network(
+                                  comic.detailed!.image,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+              
+                        /// Gradient
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(w(.08)),
+                              bottomRight: Radius.circular(w(.08)),
+                            ),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withOpacity(.15),
+                                Colors.transparent,
+                                Colors.black.withOpacity(.85),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8),
+              
+                        /// Back Button
+                        Positioned(
+                          top: h(.06),
+                          left: w(.05),
+                          child: CircleAvatar(
+                            radius: w(.06),
+                            backgroundColor: Colors.black45,
+                            child: IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: Icon(
+                                Icons.arrow_back_ios_new,
+                                color: Colors.white,
+                                size: w(.05),
+                              ),
+                            ),
+                          ),
                         ),
-                        child: const Text(
-                          "\$3.99",
+              
+                        /// Favourite Button
+                        Positioned(
+                          top: h(.06),
+                          right: w(.05),
+                          child: CircleAvatar(
+                            radius: w(.06),
+                            backgroundColor: Colors.black45,
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.favorite_border,
+                                color: Colors.white,
+                                size: w(.055),
+                              ),
+                            ),
+                          ),
+                        ),
+              
+                        /// Character Name
+                        Positioned(
+                          left: w(.05),
+                          right: w(.05),
+                          bottom: h(.03),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                comic.detailed!.name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: w(.075),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+              
+                              SizedBox(height: h(.005)),
+              
+                              Text(
+                                comic.detailed!.name,
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: w(.04),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "ABOUT",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppTheme.primaryColor,
+                            fontSize: w(.04),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
-                    ],
+              
+                        SizedBox(height: h(.015)),
+              
+                        Text(
+                          comic.detailed?.description ??
+                              "No description available.",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: w(.037),
+                            height: 1.6,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height:18),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: const [
-                      _Chip("Avengers"),
-                      _Chip("32 pages"),
-                      _Chip("2023"),
-                    ],
+                  infoCard(Icons.person, "Real Name", comic.detailed!.name),
+              
+                  infoCard(Icons.public, "Origin", comic.detailed!.coverDate),
+              
+                  infoCard(Icons.menu_book, "Publisher", comic.detailed!.name),
+              
+                  infoCard(
+                    Icons.auto_stories,
+                    "Comic Appearances",
+                    comic.detailed!.volumeId.toString(),
                   ),
-                  const SizedBox(height:30),
-                  _SectionTitle("SYNOPSIS"),
-                  const SizedBox(height:10),
-                  const Text(
-                    "The original Avengers assemble for the first time to battle a cosmic threat that no single hero could withstand alone.",
-                    style: TextStyle(color: Colors.white70,height: 1.6),
-                  ),
-                  const SizedBox(height:28),
-                  _SectionTitle("CHARACTERS"),
-                  const SizedBox(height:12),
-                  Wrap(
-                    spacing:8,
-                    runSpacing:8,
-                    children: const [
-                      _Chip("Iron Man"),
-                      _Chip("Thor"),
-                      _Chip("Hulk"),
-                      _Chip("Captain America"),
-                    ],
-                  ),
-                  const SizedBox(height:40),
                 ],
               ),
             ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget{
-  final String title;
-  const _SectionTitle(this.title);
-
-  @override
-  Widget build(BuildContext context){
-    return Text(
-      title,
-      style: const TextStyle(
-        color: Colors.red,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.2,
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget{
-  final String text;
-  const _Chip(this.text);
-
-  @override
-  Widget build(BuildContext context){
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal:12,vertical:8),
-      decoration: BoxDecoration(
-        color: const Color(0xff1D2027),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 12,
-        ),
-      ),
-    );
+          );
   }
 }

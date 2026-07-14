@@ -136,7 +136,7 @@ class ComicCard extends StatelessWidget {
     super.key,
     required this.image,
     required this.title,
-    required this.price,
+   
     required this.index,
     this.isFavorite = false,
     this.onFavorite,
@@ -145,7 +145,7 @@ class ComicCard extends StatelessWidget {
 
   final String image;
   final String title;
-  final String price;
+ 
   final int index;
   final bool isFavorite;
   final VoidCallback? onFavorite;
@@ -274,15 +274,7 @@ class ComicCard extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 6),
-
-                  Text(
-                    "\$$price",
-                    style: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 13,
-                    ),
-                  ),
+                 
                 ],
               ),
             ),
