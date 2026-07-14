@@ -8,7 +8,7 @@ class DioClient {
         BaseOptions(
           baseUrl: ApiConstants.baseUrl,
           headers: {"Content-Type": "application/json"},
-          queryParameters: {"API_KEY": ApiConstants.apiKey},
+          queryParameters: {"api_key": ApiConstants.apiKey, "format": "json"},
         ),
       );
 }
