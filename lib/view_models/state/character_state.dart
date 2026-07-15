@@ -11,12 +11,12 @@ class CharacterState {
   final bool hasMore;
   final List<CharacterModel> characters;
   final CharacterModel? detailed;
-  final bool isFav;
+  
   CharacterState({
     this.message,
     this.loading = false,
-    this.succes = true,
-    this.isFav=false,
+    this.succes = false,
+  
     this.loadingMore=false,
     this.hasMore=true,
     this.type,
@@ -31,7 +31,8 @@ class CharacterState {
     ApiException? type,
     CharacterModel? detailed,
     List<CharacterModel>? characters,
-    bool? isFav
+      bool? loadingMore,
+    bool? hasMore
   }) {
     return CharacterState(
       message: message ?? this.message,
@@ -40,7 +41,8 @@ class CharacterState {
       type: type??this.type,
       detailed: detailed??this.detailed,
       characters: characters ?? this.characters,
-      isFav: isFav??this.isFav
+      loadingMore: loadingMore??this.loadingMore,
+      hasMore: hasMore??this.hasMore
     );
   }
 }

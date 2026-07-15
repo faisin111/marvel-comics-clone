@@ -66,33 +66,26 @@ class FavouriteController extends StateNotifier<FavouriteState> {
     try {
       if (isChar) {
         await repo.removeChar(id);
-        final ch = state.characters.map((e) {
-          if (e.id == id) {
-            return e.copyWithin(isFav: false);
-          }
-          return e;
-        }).toList();
+
+        final ch = state.characters.where((e) => e.id != id).toList();
 
         state = state.copyWithin(loading: false, succes: true, characters: ch);
       } else {
         await repo.removeComic(id);
-        final ch = state.comics.map((e) {
-          if (e.id == id) {
-            return e.copyWithin(isFav: false);
-          }
-          return e;
-        }).toList();
+        final ch = state.comics.where((e) => e.id != id).toList();
 
         state = state.copyWithin(loading: false, succes: true, comics: ch);
       }
+      final d = state.all.firstWhere((e) => e.id == id);
 
-      final updated = state.all.map((e) {
-        if (e.id == id) {
-          return e.copyWithin(isFav: false);
-        }
-        return e;
-      }).toList();
-      state = state.copyWithin(loading: false, succes: true, all: updated);
+      final updated = state.all.where((e) => e.id != id).toList();
+
+      state = state.copyWithin(
+        loading: false,
+        succes: true,
+        all: updated,
+        detailed: d.copyWithin(isFav: false),
+      );
     } catch (r) {
       state = state.copyWithin(
         loading: false,
@@ -113,7 +106,7 @@ class FavouriteController extends StateNotifier<FavouriteState> {
         await repo.addItemChar(model);
         final updated = state.characters.map((e) {
           if (e.id == model.id) {
-            return e.copyWithin(isFav: true);
+            return e = e.copyWithin(isFav: true);
           }
           return e;
         }).toList();
@@ -126,16 +119,22 @@ class FavouriteController extends StateNotifier<FavouriteState> {
         await repo.addItemComic(model);
         final updated = state.comics.map((e) {
           if (e.id == model.id) {
-            return e.copyWithin(isFav: true);
+            return e = e.copyWithin(isFav: true);
           }
           return e;
         }).toList();
-        state = state.copyWithin(loading: false, succes: true, comics: updated);
+        final d = state.all.firstWhere((e) => e.id == model.id);
+        state = state.copyWithin(
+          loading: false,
+          succes: true,
+          comics: updated,
+          detailed: d.copyWithin(isFav: true),
+        );
       }
 
       final updated = state.all.map((e) {
         if (e.id == model.id) {
-          return e.copyWithin(isFav: true);
+          return e = e.copyWithin(isFav: true);
         }
         return e;
       }).toList();

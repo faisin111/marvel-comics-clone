@@ -8,15 +8,60 @@ import 'package:marvel_comics/view_models/state/character_state.dart';
 class CharacterController extends StateNotifier<CharacterState> {
   CharacterController(this.repo) : super(CharacterState());
   final CharacterRepository repo;
-
-  Future<void> getAllchar({int? limit = 20, int? offset = 0}) async {
+  int limit = 20;
+  int offset = 0;
+  Future<void> getAllchar() async {
+    offset = 0;
     state = state.copyWithin(loading: true, succes: false);
     try {
       final data = await repo.getCharacters(limit: limit, offset: offset);
       final q = data
           .map((e) => e = e.copyWithin(isFav: repo.isContainsChar(e.id)))
           .toList();
-      state = state.copyWithin(loading: false, characters: q, succes: true);
+      state = state.copyWithin(
+        loading: false,
+        characters: q,
+        succes: true,
+        hasMore: limit == q.length,
+      );
+    } on ApiException catch (e) {
+      state = state.copyWithin(
+        type: e,
+        loading: false,
+        succes: false,
+        message: e.message,
+      );
+    } catch (r) {
+      state = state.copyWithin(
+        loading: false,
+        succes: false,
+        message: r.toString(),
+      );
+    }
+  }
+
+  Future<void> loadMorechar() async {
+    if (state.loadingMore) return;
+    if (!state.hasMore) return;
+    state = state.copyWithin(loadingMore: true);
+    try {
+      offset += limit;
+      final data = await repo.getCharacters(limit: limit, offset: offset);
+      final q = data
+          .map((e) => e = e.copyWithin(isFav: repo.isContainsChar(e.id)))
+          .toList();
+      final updated = [...state.characters, ...q];
+      final unique = {
+        for (final item in updated) item.id: item,
+      }.values.toList();
+
+      state = state.copyWithin(
+        loading: false,
+        loadingMore: false,
+        characters: unique,
+
+        hasMore: limit == q.length,
+      );
     } on ApiException catch (e) {
       state = state.copyWithin(
         type: e,
@@ -37,8 +82,12 @@ class CharacterController extends StateNotifier<CharacterState> {
     state = state.copyWithin(loading: true, succes: false);
     try {
       final data = await repo.getDetails(id);
-
-      state = state.copyWithin(loading: false, detailed: data, succes: true);
+      final s = state.characters.firstWhere((e) => e.id == id);
+      if (s.isFav) {
+        state = state.copyWithin(detailed: data.copyWithin(isFav: true),loading: false,succes: true);
+        return;
+      }
+      state = state.copyWithin(loading: false,detailed: data, succes: true);
     } on ApiException catch (e) {
       state = state.copyWithin(
         type: e,
@@ -57,7 +106,6 @@ class CharacterController extends StateNotifier<CharacterState> {
 
   Future<void> removeFav(int id, {bool detailed = false}) async {
     try {
-      
       await repo.removeChar(id);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: false);
@@ -65,7 +113,7 @@ class CharacterController extends StateNotifier<CharacterState> {
       }
       final updated = state.characters.map((e) {
         if (e.id == id) {
-          return e.copyWithin(isFav: false);
+          return e= e.copyWithin(isFav: false);
         }
         return e;
       }).toList();
@@ -74,7 +122,7 @@ class CharacterController extends StateNotifier<CharacterState> {
         succes: true,
         characters: updated,
       );
-      state = state.copyWithin(loading: false, succes: true);
+   
     } catch (r) {
       state = state.copyWithin(
         loading: false,
@@ -86,15 +134,16 @@ class CharacterController extends StateNotifier<CharacterState> {
 
   Future<void> addFav(CharacterModel model, {bool detailed = false}) async {
     try {
-         final data = await repo.getDetails(model.id);
-      await repo.addItemChar(data);
+      final data = await repo.getDetails(model.id);
+      final g=data.copyWithin(isFav: true);
+      await repo.addItemChar(g);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: true);
         state = state.copyWithin(loading: false, succes: true, detailed: up);
       }
       final updated = state.characters.map((e) {
         if (e.id == model.id) {
-          return e.copyWithin(isFav: true);
+          return e = e.copyWithin(isFav: true);
         }
         return e;
       }).toList();
@@ -111,10 +160,8 @@ class CharacterController extends StateNotifier<CharacterState> {
       );
     }
   }
-  
-  Future<void> getChar(int id)async{
-    
-  }
+
+  Future<void> getChar(int id) async {}
 
   Future<void> searchCharacter(String query) async {
     state = state.copyWithin(loading: true, succes: false);

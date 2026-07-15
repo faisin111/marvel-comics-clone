@@ -17,7 +17,8 @@ class ComicView extends ConsumerStatefulWidget {
 }
 
 class _ComicViewState extends ConsumerState<ComicView> {
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController controllerSearch = TextEditingController();
+  final controller = ScrollController();
   @override
   void initState() {
     // TODO: implement initState
@@ -26,6 +27,20 @@ class _ComicViewState extends ConsumerState<ComicView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(comicProvider.notifier).getAllComic();
     });
+    controller.addListener(() {
+      if (controller.position.pixels >=
+          controller.position.maxScrollExtent - 200) {
+        ref.read(comicProvider.notifier).loadMorechar();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controller.dispose();
+    controllerSearch.dispose();
   }
 
   @override
@@ -35,10 +50,11 @@ class _ComicViewState extends ConsumerState<ComicView> {
     double w(double w) => size.width * w;
     double h(double h) => size.width * h;
     return ListView(
+      controller: controller,
       padding: EdgeInsets.all(w(0.04)),
       children: [
         SerachBarField(
-          controller: controller,
+          controller: controllerSearch,
           onChanged: (value) {
             if (value.isEmpty) {
               ref.read(comicProvider.notifier).getAllComic();
@@ -82,6 +98,16 @@ class _ComicViewState extends ConsumerState<ComicView> {
                   childAspectRatio: .68,
                 ),
                 itemBuilder: (_, index) {
+                  if (comic.comics.length == index) {
+                    Center(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppTheme.primaryColor,
+                          strokeWidth: 1.5,
+                        ),
+                      ),
+                    );
+                  }
                   final item = comic.comics[index];
 
                   return ComicCard(
@@ -106,17 +132,21 @@ class _ComicViewState extends ConsumerState<ComicView> {
                           builder: (context) => ComicDetailsPage(
                             id: item.id,
                             provider: comicProvider,
-                            favCall: ()async {
-                               if (comic.detailed!.isFav) {
-                                  await ref
-                                      .read(comicProvider.notifier)
-                                      .removeFav(comic.detailed!.id);
-
-                                  return;
-                                }
+                            favCall: () async {
+                              if (comic.detailed == null) return;
+                              if (comic.detailed!.isFav) {
                                 await ref
                                     .read(comicProvider.notifier)
-                                    .addFav(comic.detailed!);
+                                    .removeFav(
+                                      comic.detailed!.id,
+                                      detailed: true,
+                                    );
+
+                                return;
+                              }
+                              await ref
+                                  .read(comicProvider.notifier)
+                                  .addFav(comic.detailed!, detailed: true);
                             },
                             callFirst: () {
                               WidgetsBinding.instance.addPostFrameCallback((_) {

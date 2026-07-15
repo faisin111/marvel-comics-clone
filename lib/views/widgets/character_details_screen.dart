@@ -44,6 +44,13 @@ class _DetailedCharacterViewState extends ConsumerState<DetailedCharacterView> {
               strokeWidth: 1.5,
             ),
           )
+        : data.detailed == null
+        ? Scaffold(
+            backgroundColor: AppTheme.bgColor,
+            body: Center(
+              child: Text("No Data", style: TextStyle(color: Colors.white)),
+            ),
+          )
         : Scaffold(
             backgroundColor: AppTheme.bgColor,
 
@@ -66,7 +73,7 @@ class _DetailedCharacterViewState extends ConsumerState<DetailedCharacterView> {
                         size: 18,
                         color: data.detailed!.isFav ? Colors.red : Colors.white,
                       ),
-                      onPressed: ()  {
+                      onPressed: () {
                         widget.favCall();
                       },
                     ),
@@ -76,8 +83,18 @@ class _DetailedCharacterViewState extends ConsumerState<DetailedCharacterView> {
                       fit: StackFit.expand,
                       children: [
                         CachedNetworkImage(
-                          imageUrl: data.detailed?.detailedImg ?? "",
+                          imageUrl: data.detailed!.image,
                           fit: BoxFit.cover,
+                          placeholder: (_, __) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (_, __, ___) => Container(
+                            color: Colors.grey.shade900,
+                            child: const Icon(
+                              Icons.image_not_supported,
+                              color: Colors.white38,
+                              size: 60,
+                            ),
+                          ),
                         ),
                         Container(
                           decoration: const BoxDecoration(

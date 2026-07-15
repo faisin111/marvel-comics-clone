@@ -7,7 +7,10 @@ import 'package:marvel_comics/view_models/state/comic_state.dart';
 class ComicController extends StateNotifier<ComicState> {
   ComicController(this.repo) : super(ComicState());
   final ComicRepo repo;
-  Future<void> getAllComic({int? limit = 20, int? offset = 0}) async {
+  int limit = 0;
+  int offset = 0;
+  Future<void> getAllComic() async {
+    offset = 0;
     state = state.copyWithin(loading: true, succes: false);
     try {
       final data = await repo.getComics(limit: limit, offset: offset);
@@ -31,11 +34,58 @@ class ComicController extends StateNotifier<ComicState> {
     }
   }
 
+  Future<void> loadMorechar() async {
+    if (state.loadingMore) return;
+    if (!state.hasMore) return;
+    state = state.copyWithin(loadingMore: true);
+    try {
+      offset += limit;
+      final data = await repo.getComics(limit: limit, offset: offset);
+      final q = data
+          .map((e) => e = e.copyWithin(isFav: repo.isContainsComic(e.id)))
+          .toList();
+      final updated = [...state.comics, ...q];
+      final unique = {
+        for (final item in updated) item.id: item,
+      }.values.toList();
+
+      state = state.copyWithin(
+        loading: false,
+        loadingMore: false,
+        comics: unique,
+
+        hasMore: limit == q.length,
+      );
+    } on ApiException catch (e) {
+      state = state.copyWithin(
+        type: e,
+        loading: false,
+        succes: false,
+        message: e.message,
+      );
+    } catch (r) {
+      state = state.copyWithin(
+        loading: false,
+        succes: false,
+        message: r.toString(),
+      );
+    }
+  }
+
   Future<void> detailedCharacter(int id) async {
     state = state.copyWithin(loading: true, succes: false);
     try {
       final data = await repo.getDetails(id);
-      state = state.copyWithin(loading: false, detailed: data, succes: true);
+      final s = state.comics.firstWhere((e) => e.id == id);
+      if (s.isFav) {
+        state = state.copyWithin(
+          detailed: data.copyWithin(isFav: true),
+          succes: true,
+          loading: false,
+        );
+        return;
+      }
+      state = state.copyWithin(loading: false, succes: true, detailed: data);
     } on ApiException catch (e) {
       state = state.copyWithin(
         type: e,
@@ -76,7 +126,7 @@ class ComicController extends StateNotifier<ComicState> {
     }
   }
 
-   Future<void> removeFav(int id, {bool detailed = false}) async {
+  Future<void> removeFav(int id, {bool detailed = false}) async {
     try {
       await repo.removeComic(id);
       if (detailed) {
@@ -85,16 +135,11 @@ class ComicController extends StateNotifier<ComicState> {
       }
       final updated = state.comics.map((e) {
         if (e.id == id) {
-          return e.copyWithin(isFav: false);
+          return e = e.copyWithin(isFav: false);
         }
         return e;
       }).toList();
-      state = state.copyWithin(
-        loading: false,
-        succes: true,
-        comics: updated,
-      );
-      state = state.copyWithin(loading: false, succes: true);
+      state = state.copyWithin(loading: false, succes: true, comics: updated);
     } catch (r) {
       state = state.copyWithin(
         loading: false,
@@ -106,22 +151,20 @@ class ComicController extends StateNotifier<ComicState> {
 
   Future<void> addFav(ComicModel model, {bool detailed = false}) async {
     try {
-      await repo.addItemComic(model);
+      final da = await repo.getDetails(model.id);
+      final g=da.copyWithin(isFav: true);
+      await repo.addItemComic(g);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: true);
         state = state.copyWithin(loading: false, succes: true, detailed: up);
       }
       final updated = state.comics.map((e) {
         if (e.id == model.id) {
-          return e.copyWithin(isFav: true);
+          return e = e.copyWithin(isFav: true);
         }
         return e;
       }).toList();
-      state = state.copyWithin(
-        loading: false,
-        succes: true,
-        comics: updated,
-      );
+      state = state.copyWithin(loading: false, succes: true, comics: updated);
     } catch (r) {
       state = state.copyWithin(
         loading: false,
@@ -130,6 +173,4 @@ class ComicController extends StateNotifier<ComicState> {
       );
     }
   }
-
-  
 }

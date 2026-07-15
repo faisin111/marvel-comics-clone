@@ -33,6 +33,7 @@ class FavouriteState {
     List<CharacterModel>? characters,
     List<ComicModel>? comics,
     List<dynamic>? all,
+  
   }) {
     return FavouriteState(
       message: message ?? this.message,
@@ -43,6 +44,7 @@ class FavouriteState {
       characters: characters ?? this.characters,
       all: all ?? this.all,
       detailed: detailed ?? this.detailed,
+      
     );
   }
 }

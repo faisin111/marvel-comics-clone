@@ -17,7 +17,8 @@ class CharacterView extends ConsumerStatefulWidget {
 }
 
 class _CharacterViewState extends ConsumerState<CharacterView> {
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController controllerSearch = TextEditingController();
+  final controller = ScrollController();
 
   @override
   void initState() {
@@ -25,6 +26,20 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(characterProvider.notifier).getAllchar();
     });
+    controller.addListener(() {
+      if (controller.position.pixels >=
+          controller.position.maxScrollExtent - 200) {
+        ref.read(characterProvider.notifier).loadMorechar();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controller.dispose();
+    controllerSearch.dispose();
   }
 
   @override
@@ -33,12 +48,13 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
     double w(double w) => size.width * w;
     double h(double h) => size.width * h;
     final char = ref.watch(characterProvider);
-    print("${char.characters.length}");
+   
     return ListView(
+      controller: controller,
       padding: EdgeInsets.all(w(0.04)),
       children: [
         SerachBarField(
-          controller: controller,
+          controller: controllerSearch,
           onChanged: (value) {
             if (value.isEmpty) {
               ref.read(characterProvider.notifier).getAllchar();
@@ -82,8 +98,17 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                   childAspectRatio: .68,
                 ),
                 itemBuilder: (_, index) {
+                  if (char.characters.length == index) {
+                    Center(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppTheme.primaryColor,
+                          strokeWidth: 1.5,
+                        ),
+                      ),
+                    );
+                  }
                   final item = char.characters[index];
-
                   return CharacterCard(
                     image: item.image,
                     name: item.name,

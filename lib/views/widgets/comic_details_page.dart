@@ -9,7 +9,13 @@ class ComicDetailsPage<T> extends ConsumerStatefulWidget {
   final T provider;
   final VoidCallback callFirst;
   final VoidCallback favCall;
-  const ComicDetailsPage({super.key, required this.id,required this.provider,required this.callFirst,required this.favCall});
+  const ComicDetailsPage({
+    super.key,
+    required this.id,
+    required this.provider,
+    required this.callFirst,
+    required this.favCall,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -39,6 +45,13 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
             child: CircularProgressIndicator(
               color: AppTheme.primaryColor,
               strokeWidth: 1.5,
+            ),
+          )
+        : comic.detailed == null
+        ? Scaffold(
+            backgroundColor: AppTheme.bgColor,
+            body: Center(
+              child: Text("No Data", style: TextStyle(color: Colors.white)),
             ),
           )
         : Scaffold(
@@ -125,8 +138,8 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                             radius: w(.06),
                             backgroundColor: Colors.black45,
                             child: IconButton(
-                              onPressed: ()  {
-                               widget.favCall();
+                              onPressed: () {
+                                widget.favCall();
                               },
                               icon: Icon(
                                 comic.detailed!.isFav
@@ -201,16 +214,28 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                       ],
                     ),
                   ),
-                  infoCard(Icons.person, "Real Name", comic.detailed!.name),
-
-                  infoCard(Icons.public, "Origin", comic.detailed!.coverDate),
-
-                  infoCard(Icons.menu_book, "Publisher", comic.detailed!.name),
+                  infoCard(
+                    Icons.menu_book,
+                    "Issue Number",
+                    comic.detailed!.issueNumber,
+                  ),
 
                   infoCard(
-                    Icons.auto_stories,
-                    "Comic Appearances",
-                    comic.detailed!.volumeId.toString(),
+                    Icons.collections_bookmark,
+                    "Volume",
+                    comic.detailed!.volumeName,
+                  ),
+
+                  infoCard(
+                    Icons.calendar_today,
+                    "Cover Date",
+                    comic.detailed!.coverDate,
+                  ),
+
+                  infoCard(
+                    Icons.store,
+                    "Store Date",
+                    comic.detailed!.storeDate,
                   ),
                 ],
               ),

@@ -10,12 +10,15 @@ class ComicState {
   final bool loading;
   final List<ComicModel> comics;
   final ComicModel? detailed;
-  final bool isFav;
+  final bool loadingMore;
+  final bool hasMore;
+
   ComicState({
     this.message,
     this.loading = false,
     this.succes = true,
-    this.isFav=false,
+    this.loadingMore = false,
+    this.hasMore = true,
     this.type,
     this.detailed,
     this.comics = const [],
@@ -28,16 +31,16 @@ class ComicState {
     ApiException? type,
     ComicModel? detailed,
     List<ComicModel>? comics,
-    bool? isFav
+    bool? loadingMore,
+    bool? hasMore,
   }) {
     return ComicState(
       message: message ?? this.message,
       succes: succes ?? this.succes,
       loading: loading ?? this.loading,
-      type: type??this.type,
-      detailed: detailed??this.detailed,
+      type: type ?? this.type,
+      detailed: detailed ?? this.detailed,
       comics: comics ?? this.comics,
-      isFav: isFav??this.isFav
     );
   }
 }

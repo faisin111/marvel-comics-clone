@@ -14,6 +14,7 @@ class BottomAppView extends StatefulWidget {
 
 class _BottomAppViewState extends State<BottomAppView> {
   List<Widget> pages = [CharacterView(), ComicView(), FavouriteView()];
+  List<String> items = ["CHARACTERS", "COMICS", "FAVOURITES"];
 
   int selectedIndex = 0;
   @override
@@ -54,7 +55,7 @@ class _BottomAppViewState extends State<BottomAppView> {
             SizedBox(width: w(0.02)),
 
             Text(
-              "CHARACTERS",
+              items[selectedIndex],
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: w(0.04),

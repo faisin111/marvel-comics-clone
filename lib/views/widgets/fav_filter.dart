@@ -11,10 +11,17 @@ class FavFilter extends ConsumerStatefulWidget {
 
 class _FavFilterState extends ConsumerState<FavFilter> {
   final List<String> filters = ["All", "Characters", "Comics"];
+
   int iindex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final ite = ref.watch(favouriteProvider);
+    final List<int> length = [
+      ite.all.length,
+      ite.characters.length,
+      ite.comics.length,
+    ];
     return SizedBox(
       height: 42,
       child: ListView.separated(
@@ -51,7 +58,7 @@ class _FavFilterState extends ConsumerState<FavFilter> {
               ),
               child: Center(
                 child: Text(
-                  filters[index],
+                  filters[index] + "(${length[index]})",
                   style: TextStyle(
                     color: se ? Colors.white : Colors.grey.shade400,
                     fontWeight: FontWeight.w500,

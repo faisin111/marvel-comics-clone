@@ -6,12 +6,13 @@ import 'package:marvel_comics/core/error/api_exception.dart';
 import 'package:marvel_comics/core/theme/app_theme.dart';
 import 'package:marvel_comics/models/character_model.dart';
 import 'package:marvel_comics/view_models/controllers/favourite_controller.dart';
+import 'package:marvel_comics/view_models/providers/character_provider.dart';
 import 'package:marvel_comics/view_models/providers/favourite_provider.dart';
 import 'package:marvel_comics/view_models/state/favourite_state.dart';
 import 'package:marvel_comics/views/widgets/cards.dart';
 import 'package:marvel_comics/views/widgets/character_details_screen.dart';
 import 'package:marvel_comics/views/widgets/comic_details_page.dart';
-import 'package:marvel_comics/views/widgets/comic_filter.dart';
+import 'package:marvel_comics/views/widgets/fav_filter.dart';
 import 'package:marvel_comics/widgets/errors.dart';
 
 class FavouriteView extends ConsumerStatefulWidget {
@@ -42,8 +43,8 @@ class _FavouriteViewState extends ConsumerState<FavouriteView> {
       padding: EdgeInsets.all(w(0.04)),
       children: [
         fav.comics.isNotEmpty || fav.characters.isNotEmpty
-            ? FavFilter()
-            : SizedBox(),
+            ? const FavFilter()
+            : const SizedBox(),
         SizedBox(height: h(0.04)),
 
         fav.loading
@@ -222,40 +223,11 @@ class _FavouriteViewState extends ConsumerState<FavouriteView> {
                   SizedBox(height: h(0.4)),
                   Builder(
                     builder: (context) {
-                      switch (fav.type?.type) {
-                        case AuthException:
-                          return ErrorViews.unauthorized(
-                            onRetry: () {
-                              // ref.read(comicProvider.notifier).getAllchar();
-                            },
-                          );
-                        case NoInternetException:
-                          return ErrorViews.noInternet(
-                            onRetry: () {
-                              // ref.read(comicProvider.notifier).getAllchar();
-                            },
-                          );
-                        case NotfoundException:
-                          return ErrorViews.notFound();
-                        case TimeoutException:
-                          return ErrorViews.timeout(
-                            onRetry: () {
-                              // ref.read(comicProvider.notifier).getAllchar();
-                            },
-                          );
-                        case ServerException:
-                          return ErrorViews.serverError(
-                            onRetry: () {
-                              // ref.read(comicProvider.notifier).getAllchar();
-                            },
-                          );
-                        default:
-                          return ErrorViews.unknown(
-                            onRetry: () {
-                              // ref.read(comicProvider.notifier).getAllchar();
-                            },
-                          );
-                      }
+                      return ErrorViews.unknown(
+                        onRetry: () {
+                          ref.read(favouriteProvider.notifier).getAll();
+                        },
+                      );
                     },
                   ),
                 ],
