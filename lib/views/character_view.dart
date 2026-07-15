@@ -94,8 +94,29 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              detailedCharacterView(id: item.id),
+                          builder: (context) => DetailedCharacterView(
+                            id: item.id,
+                            provider: characterProvider,
+                            favCall: () async {
+                              if (item.isFav) {
+                                await ref
+                                    .read(characterProvider.notifier)
+                                    .removeFav(item.id, detailed: true);
+
+                                return;
+                              }
+                              await ref
+                                  .read(characterProvider.notifier)
+                                  .addFav(item, detailed: true);
+                            },
+                            firstCall: () {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                ref
+                                    .read(characterProvider.notifier)
+                                    .detailedCharacter(item.id);
+                              });
+                            },
+                          ),
                         ),
                       );
                     },
@@ -104,13 +125,10 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                         await ref
                             .read(characterProvider.notifier)
                             .removeFav(item.id);
-                           
 
                         return;
                       }
                       await ref.read(characterProvider.notifier).addFav(item);
-                    
-                   
                     },
                   );
                 },

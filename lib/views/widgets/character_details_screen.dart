@@ -5,23 +5,30 @@ import 'package:marvel_comics/core/theme/app_theme.dart';
 import 'package:marvel_comics/view_models/providers/character_provider.dart';
 import 'package:marvel_comics/views/widgets/rows.dart';
 
-class detailedCharacterView extends ConsumerStatefulWidget {
+class DetailedCharacterView<T> extends ConsumerStatefulWidget {
   final int id;
-  const detailedCharacterView({super.key, required this.id});
+  final T provider;
+  final VoidCallback firstCall;
+  final VoidCallback favCall;
+  const DetailedCharacterView({
+    super.key,
+    required this.id,
+    required this.provider,
+    required this.firstCall,
+    required this.favCall,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
-      _detailedCharacterViewState();
+      _DetailedCharacterViewState();
 }
 
-class _detailedCharacterViewState extends ConsumerState<detailedCharacterView> {
+class _DetailedCharacterViewState extends ConsumerState<DetailedCharacterView> {
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(characterProvider.notifier).detailedCharacter(widget.id);
-    });
+    widget.firstCall();
   }
 
   @override
@@ -29,7 +36,7 @@ class _detailedCharacterViewState extends ConsumerState<detailedCharacterView> {
     final size = MediaQuery.of(context).size;
     double w(double w) => size.width * w;
     double h(double h) => size.width * h;
-    final data = ref.watch(characterProvider);
+    final data = ref.watch(widget.provider);
     return data.loading
         ? Center(
             child: CircularProgressIndicator(
@@ -59,17 +66,8 @@ class _detailedCharacterViewState extends ConsumerState<detailedCharacterView> {
                         size: 18,
                         color: data.detailed!.isFav ? Colors.red : Colors.white,
                       ),
-                      onPressed: () async {
-                        if (data.isFav) {
-                          await ref
-                              .read(characterProvider.notifier)
-                              .removeFav(widget.id, detailed: true);
-
-                          return;
-                        }
-                        await ref
-                            .read(characterProvider.notifier)
-                            .addFav(data.detailed!, detailed: true);
+                      onPressed: ()  {
+                        widget.favCall();
                       },
                     ),
                   ],

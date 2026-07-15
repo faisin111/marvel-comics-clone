@@ -7,7 +7,7 @@ import 'package:marvel_comics/view_models/state/comic_state.dart';
 class ComicController extends StateNotifier<ComicState> {
   ComicController(this.repo) : super(ComicState());
   final ComicRepo repo;
-  Future<void> getAllchar({int? limit = 20, int? offset = 0}) async {
+  Future<void> getAllComic({int? limit = 20, int? offset = 0}) async {
     state = state.copyWithin(loading: true, succes: false);
     try {
       final data = await repo.getComics(limit: limit, offset: offset);

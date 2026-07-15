@@ -8,10 +8,11 @@ class CharacterCard extends StatelessWidget {
     required this.name,
     required this.comics,
     this.isFavourite = false,
+    this.viewFav = false,
     this.onFavourite,
     this.onTap,
   });
-
+  final bool viewFav;
   final String image;
   final String name;
   final int comics;
@@ -28,9 +29,7 @@ class CharacterCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xff18181B),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Colors.white.withOpacity(.08),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(.08)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,26 +68,37 @@ class CharacterCard extends StatelessWidget {
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: onFavourite,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isFavourite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 18,
-                          color: isFavourite
-                              ? Colors.red
-                              : Colors.white,
-                        ),
-                      ),
-                    ),
+                    child: viewFav
+                        ? InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: onFavourite,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(137, 255, 0, 0),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.delete),
+                            ),
+                          )
+                        : InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: onFavourite,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFavourite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                size: 18,
+                                color: isFavourite ? Colors.red : Colors.white,
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -114,10 +124,7 @@ class CharacterCard extends StatelessWidget {
 
                   Text(
                     "$comics Comics",
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
                   ),
                 ],
               ),
@@ -129,14 +136,12 @@ class CharacterCard extends StatelessWidget {
   }
 }
 
-
-
 class ComicCard extends StatelessWidget {
   const ComicCard({
     super.key,
     required this.image,
     required this.title,
-   
+    this.viewFav = false,
     required this.index,
     this.isFavorite = false,
     this.onFavorite,
@@ -145,7 +150,7 @@ class ComicCard extends StatelessWidget {
 
   final String image;
   final String title;
- 
+  final bool viewFav;
   final int index;
   final bool isFavorite;
   final VoidCallback? onFavorite;
@@ -160,19 +165,15 @@ class ComicCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xff18181B),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Colors.white.withOpacity(.06),
-          ),
+          border: Border.all(color: Colors.white.withOpacity(.06)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             /// IMAGE
             Expanded(
               child: Stack(
                 children: [
-
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(14),
@@ -231,25 +232,36 @@ class ComicCard extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: InkWell(
-                      onTap: onFavorite,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(.45),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: isFavorite
-                              ? Colors.red
-                              : Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ),
+                    child: viewFav
+                        ? InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: onFavorite,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(137, 255, 0, 0),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.delete),
+                            ),
+                          )
+                        : InkWell(
+                            onTap: onFavorite,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(.45),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isFavorite ? Colors.red : Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -258,10 +270,8 @@ class ComicCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     title.toUpperCase(),
                     maxLines: 2,
@@ -273,8 +283,6 @@ class ComicCard extends StatelessWidget {
                       height: 1.2,
                     ),
                   ),
-
-                 
                 ],
               ),
             ),

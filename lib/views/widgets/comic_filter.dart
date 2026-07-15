@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marvel_comics/view_models/providers/favourite_provider.dart';
 
-class ComicFilter extends StatelessWidget {
-  final List<dynamic> filters;
-  final Function(int index) onTap;
+class FavFilter extends ConsumerStatefulWidget {
+  const FavFilter({super.key});
 
-  const ComicFilter({
-    super.key,
-    required this.filters,
-    required this.onTap,
-  });
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _FavFilterState();
+}
+
+class _FavFilterState extends ConsumerState<FavFilter> {
+  final List<String> filters = ["All", "Characters", "Comics"];
+  int iindex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -21,34 +24,36 @@ class ComicFilter extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final item = filters[index];
-
+          bool se = iindex == index;
           return GestureDetector(
-            onTap: () => onTap(index),
+            onTap: () {
+              setState(() {
+                iindex = index;
+              });
+              if (index == 1) {
+                ref.read(favouriteProvider.notifier).getAllCh();
+              } else if (index == 2) {
+                ref.read(favouriteProvider.notifier).getAllCo();
+              } else {
+                ref.read(favouriteProvider.notifier).getAll();
+              }
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: item.isSelected
-                    ? const Color(0xffED1D24)
-                    : const Color(0xff1A1C22),
+                color: se ? const Color(0xffED1D24) : const Color(0xff1A1C22),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: item.isSelected
-                      ? Colors.transparent
-                      : Colors.white10,
+                  color: se ? Colors.transparent : Colors.white10,
                 ),
               ),
               child: Center(
                 child: Text(
-                  item.title,
+                  filters[index],
                   style: TextStyle(
-                    color: item.isSelected
-                        ? Colors.white
-                        : Colors.grey.shade400,
+                    color: se ? Colors.white : Colors.grey.shade400,
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
                   ),

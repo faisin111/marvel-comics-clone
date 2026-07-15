@@ -21,10 +21,10 @@ class _ComicViewState extends ConsumerState<ComicView> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
+
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(comicProvider.notifier).getAllchar();
+      ref.read(comicProvider.notifier).getAllComic();
     });
   }
 
@@ -41,7 +41,7 @@ class _ComicViewState extends ConsumerState<ComicView> {
           controller: controller,
           onChanged: (value) {
             if (value.isEmpty) {
-              ref.read(comicProvider.notifier).getAllchar();
+              ref.read(comicProvider.notifier).getAllComic();
             } else {
               ref.read(comicProvider.notifier).searchCharacter(value);
             }
@@ -103,7 +103,29 @@ class _ComicViewState extends ConsumerState<ComicView> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ComicDetailsPage(id: item.id),
+                          builder: (context) => ComicDetailsPage(
+                            id: item.id,
+                            provider: comicProvider,
+                            favCall: ()async {
+                               if (comic.detailed!.isFav) {
+                                  await ref
+                                      .read(comicProvider.notifier)
+                                      .removeFav(comic.detailed!.id);
+
+                                  return;
+                                }
+                                await ref
+                                    .read(comicProvider.notifier)
+                                    .addFav(comic.detailed!);
+                            },
+                            callFirst: () {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                ref
+                                    .read(comicProvider.notifier)
+                                    .detailedCharacter(item.id);
+                              });
+                            },
+                          ),
                         ),
                       );
                     },
@@ -119,13 +141,13 @@ class _ComicViewState extends ConsumerState<ComicView> {
                         case AuthException:
                           return ErrorViews.unauthorized(
                             onRetry: () {
-                              ref.read(comicProvider.notifier).getAllchar();
+                              ref.read(comicProvider.notifier).getAllComic();
                             },
                           );
                         case NoInternetException:
                           return ErrorViews.noInternet(
                             onRetry: () {
-                              ref.read(comicProvider.notifier).getAllchar();
+                              ref.read(comicProvider.notifier).getAllComic();
                             },
                           );
                         case NotfoundException:
@@ -133,19 +155,19 @@ class _ComicViewState extends ConsumerState<ComicView> {
                         case TimeoutException:
                           return ErrorViews.timeout(
                             onRetry: () {
-                              ref.read(comicProvider.notifier).getAllchar();
+                              ref.read(comicProvider.notifier).getAllComic();
                             },
                           );
                         case ServerException:
                           return ErrorViews.serverError(
                             onRetry: () {
-                              ref.read(comicProvider.notifier).getAllchar();
+                              ref.read(comicProvider.notifier).getAllComic();
                             },
                           );
                         default:
                           return ErrorViews.unknown(
                             onRetry: () {
-                              ref.read(comicProvider.notifier).getAllchar();
+                              ref.read(comicProvider.notifier).getAllComic();
                             },
                           );
                       }

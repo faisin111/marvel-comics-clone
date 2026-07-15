@@ -57,6 +57,7 @@ class CharacterController extends StateNotifier<CharacterState> {
 
   Future<void> removeFav(int id, {bool detailed = false}) async {
     try {
+      
       await repo.removeChar(id);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: false);
@@ -85,7 +86,8 @@ class CharacterController extends StateNotifier<CharacterState> {
 
   Future<void> addFav(CharacterModel model, {bool detailed = false}) async {
     try {
-      await repo.addItemChar(model);
+         final data = await repo.getDetails(model.id);
+      await repo.addItemChar(data);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: true);
         state = state.copyWithin(loading: false, succes: true, detailed: up);
@@ -108,6 +110,10 @@ class CharacterController extends StateNotifier<CharacterState> {
         message: r.toString(),
       );
     }
+  }
+  
+  Future<void> getChar(int id)async{
+    
   }
 
   Future<void> searchCharacter(String query) async {

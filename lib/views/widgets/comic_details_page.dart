@@ -4,9 +4,12 @@ import 'package:marvel_comics/core/theme/app_theme.dart';
 import 'package:marvel_comics/view_models/providers/comic_provider.dart';
 import 'package:marvel_comics/views/widgets/rows.dart';
 
-class ComicDetailsPage extends ConsumerStatefulWidget {
+class ComicDetailsPage<T> extends ConsumerStatefulWidget {
   final int id;
-  const ComicDetailsPage({super.key, required this.id});
+  final T provider;
+  final VoidCallback callFirst;
+  final VoidCallback favCall;
+  const ComicDetailsPage({super.key, required this.id,required this.provider,required this.callFirst,required this.favCall});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -19,7 +22,7 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(comicProvider.notifier).detailedCharacter(widget.id);
+      widget.callFirst();
     });
   }
 
@@ -30,7 +33,7 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
     double w(double value) => size.width * value;
 
     double h(double value) => size.height * value;
-    final comic = ref.watch(comicProvider);
+    final comic = ref.watch(widget.provider);
     return comic.loading
         ? Center(
             child: CircularProgressIndicator(
@@ -122,17 +125,8 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                             radius: w(.06),
                             backgroundColor: Colors.black45,
                             child: IconButton(
-                              onPressed: () async {
-                                if (comic.detailed!.isFav) {
-                                  await ref
-                                      .read(comicProvider.notifier)
-                                      .removeFav(widget.id);
-
-                                  return;
-                                }
-                                await ref
-                                    .read(comicProvider.notifier)
-                                    .addFav(comic.detailed!);
+                              onPressed: ()  {
+                               widget.favCall();
                               },
                               icon: Icon(
                                 comic.detailed!.isFav
