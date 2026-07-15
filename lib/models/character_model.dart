@@ -8,7 +8,7 @@ class CharacterModel {
   final String publisher;
   final String origin;
   final int issueAppearances;
-
+  final bool isFav;
   CharacterModel({
     required this.id,
     required this.detailedImg,
@@ -18,6 +18,7 @@ class CharacterModel {
     required this.image,
     required this.publisher,
     required this.origin,
+    this.isFav = false,
     required this.issueAppearances,
   });
 
@@ -33,6 +34,20 @@ class CharacterModel {
       publisher: json["publisher"]?["name"] ?? "",
       origin: json["origin"]?["name"] ?? "",
       issueAppearances: json["count_of_issue_appearances"] ?? 0,
+    );
+  }
+  CharacterModel copyWithin({bool? isFav}) {
+    return CharacterModel(
+      id: id,
+      detailedImg: detailedImg,
+      name: name,
+      realName: realName,
+      deck: deck,
+      image: image,
+      publisher: publisher,
+      origin: origin,
+      issueAppearances: issueAppearances,
+      isFav: isFav??this.isFav
     );
   }
 }

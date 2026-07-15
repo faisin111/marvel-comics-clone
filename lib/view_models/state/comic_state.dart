@@ -8,15 +8,17 @@ class ComicState {
   final ApiException? type;
   final bool succes;
   final bool loading;
-  final List<ComicModel> characters;
+  final List<ComicModel> comics;
   final ComicModel? detailed;
+  final bool isFav;
   ComicState({
     this.message,
     this.loading = false,
     this.succes = true,
+    this.isFav=false,
     this.type,
     this.detailed,
-    this.characters = const [],
+    this.comics = const [],
   });
 
   ComicState copyWithin({
@@ -25,7 +27,8 @@ class ComicState {
     bool? loading,
     ApiException? type,
     ComicModel? detailed,
-    List<ComicModel>? characters,
+    List<ComicModel>? comics,
+    bool? isFav
   }) {
     return ComicState(
       message: message ?? this.message,
@@ -33,7 +36,8 @@ class ComicState {
       loading: loading ?? this.loading,
       type: type??this.type,
       detailed: detailed??this.detailed,
-      characters: characters ?? this.characters,
+      comics: comics ?? this.comics,
+      isFav: isFav??this.isFav
     );
   }
 }

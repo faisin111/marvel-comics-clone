@@ -52,8 +52,25 @@ class _detailedCharacterViewState extends ConsumerState<detailedCharacterView> {
                   ),
                   actions: [
                     IconButton(
-                      icon: Icon(Icons.favorite_border, size: w(.06)),
-                      onPressed: () {},
+                      icon: Icon(
+                        data.detailed!.isFav
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        size: 18,
+                        color: data.detailed!.isFav ? Colors.red : Colors.white,
+                      ),
+                      onPressed: () async {
+                        if (data.isFav) {
+                          await ref
+                              .read(characterProvider.notifier)
+                              .removeFav(widget.id, detailed: true);
+
+                          return;
+                        }
+                        await ref
+                            .read(characterProvider.notifier)
+                            .addFav(data.detailed!, detailed: true);
+                      },
                     ),
                   ],
                   flexibleSpace: FlexibleSpaceBar(

@@ -74,7 +74,7 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                                   fit: BoxFit.cover,
                                 ),
                         ),
-              
+
                         /// Gradient
                         Container(
                           decoration: BoxDecoration(
@@ -93,7 +93,7 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                             ),
                           ),
                         ),
-              
+
                         /// Back Button
                         Positioned(
                           top: h(.06),
@@ -113,7 +113,7 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                             ),
                           ),
                         ),
-              
+
                         /// Favourite Button
                         Positioned(
                           top: h(.06),
@@ -122,16 +122,31 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                             radius: w(.06),
                             backgroundColor: Colors.black45,
                             child: IconButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                if (comic.detailed!.isFav) {
+                                  await ref
+                                      .read(comicProvider.notifier)
+                                      .removeFav(widget.id);
+
+                                  return;
+                                }
+                                await ref
+                                    .read(comicProvider.notifier)
+                                    .addFav(comic.detailed!);
+                              },
                               icon: Icon(
-                                Icons.favorite_border,
-                                color: Colors.white,
-                                size: w(.055),
+                                comic.detailed!.isFav
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                size: 18,
+                                color: comic.detailed!.isFav
+                                    ? Colors.red
+                                    : Colors.white,
                               ),
                             ),
                           ),
                         ),
-              
+
                         /// Character Name
                         Positioned(
                           left: w(.05),
@@ -148,9 +163,9 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-              
+
                               SizedBox(height: h(.005)),
-              
+
                               Text(
                                 comic.detailed!.name,
                                 style: TextStyle(
@@ -177,9 +192,9 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-              
+
                         SizedBox(height: h(.015)),
-              
+
                         Text(
                           comic.detailed?.description ??
                               "No description available.",
@@ -193,11 +208,11 @@ class _ComicDetailsPageState extends ConsumerState<ComicDetailsPage> {
                     ),
                   ),
                   infoCard(Icons.person, "Real Name", comic.detailed!.name),
-              
+
                   infoCard(Icons.public, "Origin", comic.detailed!.coverDate),
-              
+
                   infoCard(Icons.menu_book, "Publisher", comic.detailed!.name),
-              
+
                   infoCard(
                     Icons.auto_stories,
                     "Comic Appearances",

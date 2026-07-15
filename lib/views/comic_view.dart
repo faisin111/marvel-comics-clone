@@ -74,7 +74,7 @@ class _ComicViewState extends ConsumerState<ComicView> {
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
 
-                itemCount: comic.characters.length,
+                itemCount: comic.comics.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 14,
@@ -82,13 +82,23 @@ class _ComicViewState extends ConsumerState<ComicView> {
                   childAspectRatio: .68,
                 ),
                 itemBuilder: (_, index) {
-                  final item = comic.characters[index];
+                  final item = comic.comics[index];
 
                   return ComicCard(
                     image: item.image,
                     title: item.name,
-                 
+                    isFavorite: item.isFav,
                     index: index,
+                    onFavorite: () async {
+                      if (item.isFav) {
+                        await ref
+                            .read(comicProvider.notifier)
+                            .removeFav(item.id);
+
+                        return;
+                      }
+                      await ref.read(comicProvider.notifier).addFav(item);
+                    },
                     onTap: () {
                       Navigator.push(
                         context,

@@ -88,7 +88,8 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                     image: item.image,
                     name: item.name,
                     comics: item.issueAppearances,
-                    isFavourite: false,
+                    isFavourite: item.isFav,
+
                     onTap: () {
                       Navigator.push(
                         context,
@@ -98,7 +99,19 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                         ),
                       );
                     },
-                    onFavourite: () {},
+                    onFavourite: () async {
+                      if (item.isFav) {
+                        await ref
+                            .read(characterProvider.notifier)
+                            .removeFav(item.id);
+                           
+
+                        return;
+                      }
+                      await ref.read(characterProvider.notifier).addFav(item);
+                    
+                   
+                    },
                   );
                 },
               )
