@@ -48,7 +48,7 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
     double w(double w) => size.width * w;
     double h(double h) => size.width * h;
     final char = ref.watch(characterProvider);
-   
+
     return ListView(
       controller: controller,
       padding: EdgeInsets.all(w(0.04)),
@@ -123,16 +123,22 @@ class _CharacterViewState extends ConsumerState<CharacterView> {
                             id: item.id,
                             provider: characterProvider,
                             favCall: () async {
-                              if (item.isFav) {
+                              final state = ref.read(characterProvider);
+
+                              if (state.detailed == null) return;
+
+                              if (state.detailed!.isFav) {
                                 await ref
                                     .read(characterProvider.notifier)
-                                    .removeFav(item.id, detailed: true);
-
-                                return;
+                                    .removeFav(
+                                      state.detailed!.id,
+                                      detailed: true,
+                                    );
+                              } else {
+                                await ref
+                                    .read(characterProvider.notifier)
+                                    .addFav(state.detailed!, detailed: true);
                               }
-                              await ref
-                                  .read(characterProvider.notifier)
-                                  .addFav(item, detailed: true);
                             },
                             firstCall: () {
                               WidgetsBinding.instance.addPostFrameCallback((_) {

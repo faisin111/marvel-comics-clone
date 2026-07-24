@@ -89,6 +89,7 @@ class _FavouriteViewState extends ConsumerState<FavouriteView> {
                           MaterialPageRoute(
                             builder: (context) => DetailedCharacterView(
                               favCall: () async {
+                                
                                 if (item.isFav) {
                                   await ref
                                       .read(favouriteProvider.notifier)

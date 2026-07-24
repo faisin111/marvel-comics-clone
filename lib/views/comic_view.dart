@@ -133,20 +133,22 @@ class _ComicViewState extends ConsumerState<ComicView> {
                             id: item.id,
                             provider: comicProvider,
                             favCall: () async {
-                              if (comic.detailed == null) return;
-                              if (comic.detailed!.isFav) {
+                              final state = ref.read(comicProvider);
+
+                              if (state.detailed == null) return;
+
+                              if (state.detailed!.isFav) {
                                 await ref
                                     .read(comicProvider.notifier)
                                     .removeFav(
-                                      comic.detailed!.id,
+                                      state.detailed!.id,
                                       detailed: true,
                                     );
-
-                                return;
+                              } else {
+                                await ref
+                                    .read(comicProvider.notifier)
+                                    .addFav(state.detailed!, detailed: true);
                               }
-                              await ref
-                                  .read(comicProvider.notifier)
-                                  .addFav(comic.detailed!, detailed: true);
                             },
                             callFirst: () {
                               WidgetsBinding.instance.addPostFrameCallback((_) {

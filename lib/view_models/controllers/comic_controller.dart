@@ -7,7 +7,7 @@ import 'package:marvel_comics/view_models/state/comic_state.dart';
 class ComicController extends StateNotifier<ComicState> {
   ComicController(this.repo) : super(ComicState());
   final ComicRepo repo;
-  int limit = 0;
+  int limit = 20;
   int offset = 0;
   Future<void> getAllComic() async {
     offset = 0;
@@ -129,22 +129,24 @@ class ComicController extends StateNotifier<ComicState> {
   Future<void> removeFav(int id, {bool detailed = false}) async {
     try {
       await repo.removeComic(id);
-      if (detailed) {
-        final up = state.detailed?.copyWithin(isFav: false);
-        state = state.copyWithin(loading: false, succes: true, detailed: up);
-      }
-      final updated = state.comics.map((e) {
-        if (e.id == id) {
-          return e = e.copyWithin(isFav: false);
-        }
-        return e;
+
+      final updated = state.comics.map((comic) {
+        return comic.id == id ? comic.copyWithin(isFav: false) : comic;
       }).toList();
-      state = state.copyWithin(loading: false, succes: true, comics: updated);
-    } catch (r) {
+
+      state = state.copyWithin(
+        comics: updated,
+        detailed: detailed && state.detailed != null
+            ? state.detailed!.copyWithin(isFav: false)
+            : state.detailed,
+        succes: true,
+        loading: false,
+      );
+    } catch (e) {
       state = state.copyWithin(
         loading: false,
         succes: false,
-        message: r.toString(),
+        message: e.toString(),
       );
     }
   }
@@ -152,7 +154,7 @@ class ComicController extends StateNotifier<ComicState> {
   Future<void> addFav(ComicModel model, {bool detailed = false}) async {
     try {
       final da = await repo.getDetails(model.id);
-      final g=da.copyWithin(isFav: true);
+      final g = da.copyWithin(isFav: true);
       await repo.addItemComic(g);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: true);

@@ -84,10 +84,14 @@ class CharacterController extends StateNotifier<CharacterState> {
       final data = await repo.getDetails(id);
       final s = state.characters.firstWhere((e) => e.id == id);
       if (s.isFav) {
-        state = state.copyWithin(detailed: data.copyWithin(isFav: true),loading: false,succes: true);
+        state = state.copyWithin(
+          detailed: data.copyWithin(isFav: true),
+          loading: false,
+          succes: true,
+        );
         return;
       }
-      state = state.copyWithin(loading: false,detailed: data, succes: true);
+      state = state.copyWithin(loading: false, detailed: data, succes: true);
     } on ApiException catch (e) {
       state = state.copyWithin(
         type: e,
@@ -107,27 +111,24 @@ class CharacterController extends StateNotifier<CharacterState> {
   Future<void> removeFav(int id, {bool detailed = false}) async {
     try {
       await repo.removeChar(id);
-      if (detailed) {
-        final up = state.detailed?.copyWithin(isFav: false);
-        state = state.copyWithin(loading: false, succes: true, detailed: up);
-      }
+
       final updated = state.characters.map((e) {
-        if (e.id == id) {
-          return e= e.copyWithin(isFav: false);
-        }
-        return e;
+        return e.id == id ? e.copyWithin(isFav: false) : e;
       }).toList();
+
       state = state.copyWithin(
         loading: false,
         succes: true,
         characters: updated,
+        detailed: detailed && state.detailed != null
+            ? state.detailed!.copyWithin(isFav: false)
+            : state.detailed,
       );
-   
-    } catch (r) {
+    } catch (e) {
       state = state.copyWithin(
         loading: false,
         succes: false,
-        message: r.toString(),
+        message: e.toString(),
       );
     }
   }
@@ -135,7 +136,7 @@ class CharacterController extends StateNotifier<CharacterState> {
   Future<void> addFav(CharacterModel model, {bool detailed = false}) async {
     try {
       final data = await repo.getDetails(model.id);
-      final g=data.copyWithin(isFav: true);
+      final g = data.copyWithin(isFav: true);
       await repo.addItemChar(g);
       if (detailed) {
         final up = state.detailed?.copyWithin(isFav: true);
